@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduERP — School Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ─── TOKENS ──────────────────────────────────────────────── */
+:root {
+  --accent:       #4F6EF7;
+  --accent-soft:  #EEF1FE;
+  --accent-glow:  rgba(79,110,247,0.18);
+  --green:        #22c55e;
+  --green-soft:   #dcfce7;
+  --red:          #ef4444;
+  --red-soft:     #fee2e2;
+  --amber:        #f59e0b;
+  --amber-soft:   #fef3c7;
+  --radius:       10px;
+  --radius-lg:    16px;
+  --sidebar-w:    230px;
+  --font:         'Sora', sans-serif;
+  --mono:         'JetBrains Mono', monospace;
+  --trans:        all 0.22s cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="light"] {
+  --bg:        #F5F6FA;
+  --surface:   #FFFFFF;
+  --surface2:  #F0F1F8;
+  --border:    #E3E5F0;
+  --text:      #1A1D2E;
+  --text2:     #6B7280;
+  --text3:     #9CA3AF;
+  --sidebar-bg:#1A1D2E;
+  --sidebar-t: rgba(255,255,255,0.6);
+  --sidebar-ta:#FFFFFF;
+  --sidebar-hi:rgba(255,255,255,0.08);
+  --shadow:    0 2px 16px rgba(26,29,46,0.08);
+  --shadow-lg: 0 8px 40px rgba(26,29,46,0.12);
+}
+
+[data-theme="dark"] {
+  --bg:        #0F1117;
+  --surface:   #1A1D2E;
+  --surface2:  #252840;
+  --border:    #2D3150;
+  --text:      #E8EAF6;
+  --text2:     #8B90B8;
+  --text3:     #4B5280;
+  --sidebar-bg:#0A0C14;
+  --sidebar-t: rgba(255,255,255,0.45);
+  --sidebar-ta:#FFFFFF;
+  --sidebar-hi:rgba(255,255,255,0.06);
+  --shadow:    0 2px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  --accent-soft: rgba(79,110,247,0.15);
+  --green-soft:  rgba(34,197,94,0.12);
+  --red-soft:    rgba(239,68,68,0.12);
+  --amber-soft:  rgba(245,158,11,0.12);
+}
+
+/* ─── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; transition: background .3s, color .3s; }
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: var(--font); }
+
+/* ─── LAYOUT ──────────────────────────────────────────────── */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+  transition: var(--trans);
+  z-index: 10;
+}
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo-icon {
+  width: 34px; height: 34px; background: var(--accent);
+  border-radius: 8px; display: grid; place-items: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.logo-text { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.logo-sub  { color: rgba(255,255,255,0.35); font-size: 10px; font-weight: 400; letter-spacing: 0.5px; }
+
+.sidebar-section { padding: 16px 12px 4px; }
+.sidebar-label { color: rgba(255,255,255,0.22); font-size: 9.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 8px;
+  color: var(--sidebar-t);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: var(--trans);
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--sidebar-hi); color: var(--sidebar-ta); }
+.nav-item.active { background: var(--accent); color: #fff; }
+.nav-item.active .nav-icon { color: #fff; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; background: var(--accent);
+  color: #fff; font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 20px;
+}
+.nav-item.active .nav-badge { background: rgba(255,255,255,0.25); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  cursor: pointer; transition: var(--trans);
+}
+.user-pill:hover { background: var(--sidebar-hi); }
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: grid; place-items: center; font-size: 11px; color: #fff; font-weight: 700;
+}
+.user-name  { color: rgba(255,255,255,0.85); font-size: 12.5px; font-weight: 500; }
+.user-role  { color: rgba(255,255,255,0.3); font-size: 10.5px; }
+
+/* ─── MAIN ────────────────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+/* ─── TOPBAR ──────────────────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 58px;
+  display: flex; align-items: center; gap: 16px;
+  flex-shrink: 0;
+  transition: background .3s, border-color .3s;
+}
+.topbar-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+.topbar-sub   { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+.tab-switcher {
+  display: flex; gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px;
+}
+.tab-btn {
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text2); transition: var(--trans);
+}
+.tab-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+.theme-toggle {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  display: grid; place-items: center;
+  font-size: 16px; cursor: pointer;
+  transition: var(--trans);
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+.topbar-action {
+  background: var(--accent); color: #fff;
+  padding: 8px 16px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600;
+  transition: var(--trans);
+}
+.topbar-action:hover { opacity: .88; transform: translateY(-1px); }
+
+/* ─── CONTENT ─────────────────────────────────────────────── */
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ─── STATS ROW ───────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  transition: var(--trans);
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 70px; height: 70px; border-radius: 0 16px 0 50px;
+  opacity: .07;
+}
+.stat-card.blue::before  { background: var(--accent); opacity: .12; }
+.stat-card.green::before { background: var(--green); opacity: .12; }
+.stat-card.red::before   { background: var(--red); opacity: .12; }
+.stat-card.amber::before { background: var(--amber); opacity: .12; }
+
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+.stat-delta { font-size: 11.5px; color: var(--text2); margin-top: 6px; }
+.stat-icon  { font-size: 22px; position: absolute; top: 18px; right: 18px; opacity: .25; }
+
+/* ─── PANEL ───────────────────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.panel-title { font-size: 14px; font-weight: 700; flex: 1; }
+.panel-action {
+  font-size: 12px; color: var(--accent); font-weight: 600; cursor: pointer;
+  background: var(--accent-soft); padding: 5px 12px; border-radius: 6px;
+  transition: var(--trans);
+}
+.panel-action:hover { opacity: .8; }
+
+/* ─── TABLE ───────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 10px 16px; text-align: left;
+  font-size: 11px; font-weight: 600; color: var(--text2);
+  letter-spacing: .5px; text-transform: uppercase;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody td { padding: 11px 16px; font-size: 13px; }
+
+/* ─── BADGES ──────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-green  { background: var(--green-soft);  color: #15803d; }
+.badge-red    { background: var(--red-soft);    color: #dc2626; }
+.badge-amber  { background: var(--amber-soft);  color: #b45309; }
+.badge-blue   { background: var(--accent-soft); color: var(--accent); }
+[data-theme="dark"] .badge-green { color: #4ade80; }
+[data-theme="dark"] .badge-red   { color: #f87171; }
+[data-theme="dark"] .badge-amber { color: #fbbf24; }
+
+/* ─── AVATAR ──────────────────────────────────────────────── */
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  font-size: 10px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+
+/* ─── ATTENDANCE GRID ─────────────────────────────────────── */
+.att-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+}
+.att-row {
+  display: contents;
+}
+.att-name-cell {
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.att-actions {
+  padding: 8px 16px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.att-btn {
+  padding: 5px 12px; border-radius: 6px;
+  font-size: 11.5px; font-weight: 600;
+  border: 1.5px solid transparent;
+  transition: var(--trans); cursor: pointer;
+}
+.att-btn.present { background: var(--green-soft); color: #15803d; border-color: var(--green); }
+.att-btn.absent  { background: var(--red-soft);   color: #dc2626; border-color: var(--red); }
+.att-btn.leave   { background: var(--amber-soft);  color: #b45309; border-color: var(--amber); }
+.att-btn.late    { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.att-btn.outline {
+  background: transparent;
+  border-color: var(--border); color: var(--text2);
+}
+.att-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+[data-theme="dark"] .att-btn.present { color: #4ade80; }
+[data-theme="dark"] .att-btn.absent  { color: #f87171; }
+[data-theme="dark"] .att-btn.leave   { color: #fbbf24; }
+
+.att-header {
+  display: grid; grid-template-columns: 220px 1fr;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.att-col-hdr {
+  padding: 10px 16px;
+  font-size: 11px; font-weight: 600; color: var(--text2);
+  letter-spacing: .5px; text-transform: uppercase;
+}
+
+/* ─── FORM ────────────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+.form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group.full { grid-column: 1 / -1; }
+.field-label { font-size: 11.5px; font-weight: 600; color: var(--text2); letter-spacing: .3px; }
+.field-input {
+  padding: 9px 12px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  transition: border-color .15s;
+  outline: none;
+}
+.field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.field-input::placeholder { color: var(--text3); }
+select.field-input { cursor: pointer; }
+
+.section-divider {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 12px;
+  margin: 4px 0;
+}
+.section-divider span {
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.form-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; justify-content: flex-end;
+  background: var(--surface2);
+}
+.btn-primary {
+  background: var(--accent); color: #fff;
+  padding: 9px 22px; border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  transition: var(--trans);
+}
+.btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text2);
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  border: 1.5px solid var(--border);
+  transition: var(--trans);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─── SEARCH BAR ──────────────────────────────────────────── */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.search-input-wrap { position: relative; flex: 1; }
+.search-input-wrap .icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+.search-inp {
+  width: 100%; padding: 8px 12px 8px 34px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 13px;
+  outline: none; transition: border-color .15s;
+}
+.search-inp:focus { border-color: var(--accent); }
+.filter-select {
+  padding: 8px 12px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--text2); font-size: 13px; outline: none; cursor: pointer;
+  font-family: var(--font);
+}
+
+/* ─── MONTH SUMMARY ───────────────────────────────────────── */
+.month-bars { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-name { font-size: 12.5px; width: 140px; flex-shrink: 0; font-weight: 500; color: var(--text); }
+.bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 20px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 20px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.bar-pct   { font-size: 12px; font-weight: 600; width: 36px; text-align: right; font-family: var(--mono); }
+
+/* ─── DATE STRIP ──────────────────────────────────────────── */
+.date-strip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+}
+.date-label { font-size: 12px; color: var(--text2); }
+.date-val   { font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 4px 12px; border-radius: 6px; }
+.mark-all-row { margin-left: auto; display: flex; gap: 8px; }
+
+/* ─── VIEWS ───────────────────────────────────────────────── */
+.view { display: none; animation: fadeUp .3s ease; }
+.view.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── TOAST ───────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #1a1d2e; color: #fff;
+  padding: 12px 20px; border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  transform: translateY(80px); opacity: 0;
+  transition: all .35s cubic-bezier(.4,0,.2,1);
+  z-index: 999;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ─── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── TOP MODULE TABS ─────────────────────────────────────── */
+.module-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.module-tab {
+  padding: 12px 18px;
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; border-bottom: 2.5px solid transparent;
+  transition: var(--trans); display: flex; align-items: center; gap: 6px;
+}
+.module-tab:hover { color: var(--text); }
+.module-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.module-tab .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: none; }
+.module-tab.active .dot { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ════ SIDEBAR ════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎓</div>
+      <div>
+        <div class="logo-text">EduERP</div>
+        <div class="logo-sub">School Management</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Core Modules</div>
+      <div class="nav-item active" onclick="switchModule('students')">
+        <span class="nav-icon">👥</span> Students
+      </div>
+      <div class="nav-item" onclick="switchModule('attendance')">
+        <span class="nav-icon">📋</span> Attendance
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="switchModule('hostel')">
+        <span class="nav-icon">🏠</span> Hostel
+      </div>
+      <div class="nav-item" onclick="switchModule('kitchen')">
+        <span class="nav-icon">🍽️</span> Kitchen
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Learning</div>
+      <div class="nav-item" onclick="switchModule('lms')">
+        <span class="nav-icon">📚</span> LMS
+        <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" onclick="switchModule('guests')">
+        <span class="nav-icon">🤝</span> Guests
+      </div>
+      <div class="nav-item" onclick="switchModule('donors')">
+        <span class="nav-icon">💛</span> Donors
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">AD</div>
+        <div>
+          <div class="user-name">Admin User</div>
+          <div class="user-role">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════ MAIN ════ -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div style="flex:1">
+        <div class="topbar-title" id="topbar-title">Students — Admission</div>
+        <div class="topbar-sub" id="topbar-sub">Manage student profiles & enrollment</div>
+      </div>
+      <div class="tab-switcher" id="tab-switcher">
+        <button class="tab-btn active" onclick="switchTab('list')">Student List</button>
+        <button class="tab-btn" onclick="switchTab('add')">+ Add Student</button>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-icon" title="Toggle theme">🌙</button>
+      <button class="topbar-action" id="export-btn" onclick="showToast('📥 Exporting CSV...')">Export CSV</button>
+    </div>
+
+    <!-- Module Tabs (sub-navigation) -->
+    <div class="module-tabs" id="module-tabs">
+      <div class="module-tab active" onclick="switchTab('list')">
+        <div class="dot"></div> Student List
+      </div>
+      <div class="module-tab" onclick="switchTab('add')">Admission Form</div>
+      <div class="module-tab" onclick="switchTab('summary')">Reports</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="main-content">
+
+      <!-- ══ STUDENTS: LIST VIEW ══ -->
+      <div class="view active" id="view-list">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card blue">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value" style="color:var(--accent)">148</div>
+            <div class="stat-delta">↑ 12 admitted this month</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Active</div>
+            <div class="stat-value" style="color:var(--green)">141</div>
+            <div class="stat-delta">95.3% enrollment rate</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">📄</div>
+            <div class="stat-label">Docs Pending</div>
+            <div class="stat-value" style="color:var(--amber)">23</div>
+            <div class="stat-delta">Documents awaiting upload</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">🚪</div>
+            <div class="stat-label">Inactive</div>
+            <div class="stat-value" style="color:var(--red)">7</div>
+            <div class="stat-delta">Transferred / left</div>
+          </div>
+        </div>
+
+        <!-- Table Panel -->
+        <div class="panel">
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <span class="icon">🔍</span>
+              <input class="search-inp" type="text" placeholder="Search students by name, ID, class…" oninput="filterStudents(this.value)" />
+            </div>
+            <select class="filter-select" onchange="filterStudents('')">
+              <option>All Classes</option>
+              <option>Grade 8</option>
+              <option>Grade 9</option>
+              <option>Grade 10</option>
+              <option>Grade 11</option>
+            </select>
+            <select class="filter-select">
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table id="student-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>ID</th>
+                  <th>Grade</th>
+                  <th>Guardian</th>
+                  <th>Admitted</th>
+                  <th>Documents</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="student-tbody">
+                <!-- JS injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ STUDENTS: ADMISSION FORM ══ -->
+      <div class="view" id="view-add">
+        <div class="panel">
+          <div class="panel-header">
+            <span style="font-size:18px">🧑‍🎓</span>
+            <span class="panel-title">New Student Admission</span>
+            <span style="font-size:12px;color:var(--text2)">All fields marked * are required</span>
+          </div>
+          <div class="form-grid">
+            <div class="section-divider"><span>Personal Information</span></div>
+            <div class="field-group">
+              <label class="field-label">First Name *</label>
+              <input class="field-input" placeholder="e.g. Arjun" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Last Name *</label>
+              <input class="field-input" placeholder="e.g. Sharma" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Date of Birth *</label>
+              <input class="field-input" type="date" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Gender *</label>
+              <select class="field-input">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Blood Group</label>
+              <select class="field-input">
+                <option value="">Select</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>O+</option><option>O-</option>
+                <option>AB+</option><option>AB-</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Aadhar / ID Number</label>
+              <input class="field-input" placeholder="12-digit Aadhar" />
+            </div>
+            <div class="field-group full">
+              <label class="field-label">Address</label>
+              <textarea class="field-input" rows="2" placeholder="Full residential address…"></textarea>
+            </div>
+
+            <div class="section-divider"><span>Academic Details</span></div>
+            <div class="field-group">
+              <label class="field-label">Grade / Class *</label>
+              <select class="field-input">
+                <option value="">Select grade</option>
+                <option>Grade 6</option><option>Grade 7</option>
+                <option>Grade 8</option><option>Grade 9</option>
+                <option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Section</label>
+              <select class="field-input">
+                <option>A</option><option>B</option><option>C</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Admission Date *</label>
+              <input class="field-input" type="date" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Previous School</label>
+              <input class="field-input" placeholder="School name" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Hostel Resident?</label>
+              <select class="field-input">
+                <option>Yes</option><option>No</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Roll Number</label>
+              <input class="field-input" placeholder="Auto-assigned if blank" />
+            </div>
+
+            <div class="section-divider"><span>Guardian Information</span></div>
+            <div class="field-group">
+              <label class="field-label">Guardian Name *</label>
+              <input class="field-input" placeholder="Full name" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Relationship</label>
+              <select class="field-input">
+                <option>Father</option><option>Mother</option><option>Guardian</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Primary Phone *</label>
+              <input class="field-input" type="tel" placeholder="+91 XXXXX XXXXX" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Email</label>
+              <input class="field-input" type="email" placeholder="guardian@email.com" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Occupation</label>
+              <input class="field-input" placeholder="e.g. Teacher, Business" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Annual Income</label>
+              <select class="field-input">
+                <option>Below ₹2L</option><option>₹2L – ₹5L</option>
+                <option>₹5L – ₹10L</option><option>Above ₹10L</option>
+              </select>
+            </div>
+
+            <div class="section-divider"><span>Document Uploads</span></div>
+            <div class="field-group">
+              <label class="field-label">Birth Certificate</label>
+              <input class="field-input" type="file" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Transfer Certificate</label>
+              <input class="field-input" type="file" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Aadhar Card Copy</label>
+              <input class="field-input" type="file" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Passport Photo</label>
+              <input class="field-input" type="file" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Medical Certificate</label>
+              <input class="field-input" type="file" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Previous Marksheet</label>
+              <input class="field-input" type="file" />
+            </div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-ghost" onclick="switchTab('list')">Cancel</button>
+            <button class="btn-primary" onclick="showToast('✅ Student admitted successfully!')">Save & Admit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ STUDENTS: SUMMARY ══ -->
+      <div class="view" id="view-summary">
+        <div class="stats-row">
+          <div class="stat-card blue">
+            <div class="stat-icon">📊</div>
+            <div class="stat-label">Total Enrolled</div>
+            <div class="stat-value" style="color:var(--accent)">148</div>
+            <div class="stat-delta">Academic year 2024–25</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">👦</div>
+            <div class="stat-label">Male Students</div>
+            <div class="stat-value" style="color:var(--green)">79</div>
+            <div class="stat-delta">53.4%</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">👧</div>
+            <div class="stat-label">Female Students</div>
+            <div class="stat-value" style="color:var(--amber)">69</div>
+            <div class="stat-delta">46.6%</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-label">Hostel Residents</div>
+            <div class="stat-value" style="color:var(--red)">112</div>
+            <div class="stat-delta">75.7% boarding</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Grade-wise Enrollment</span>
+            <span class="panel-action" onclick="showToast('📥 Exporting report…')">Export</span>
+          </div>
+          <div class="month-bars">
+            <div class="bar-row"><span class="bar-name">Grade 8</span><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--accent)"></div></div><span class="bar-pct" style="color:var(--accent)">88%</span></div>
+            <div class="bar-row"><span class="bar-name">Grade 9</span><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--green)"></div></div><span class="bar-pct" style="color:var(--green)">74%</span></div>
+            <div class="bar-row"><span class="bar-name">Grade 10</span><div class="bar-track"><div class="bar-fill" style="width:92%;background:var(--accent)"></div></div><span class="bar-pct" style="color:var(--accent)">92%</span></div>
+            <div class="bar-row"><span class="bar-name">Grade 11</span><div class="bar-track"><div class="bar-fill" style="width:61%;background:var(--amber)"></div></div><span class="bar-pct" style="color:var(--amber)">61%</span></div>
+            <div class="bar-row"><span class="bar-name">Grade 12</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--red)"></div></div><span class="bar-pct" style="color:var(--red)">55%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ATTENDANCE VIEWS ══ -->
+      <div class="view" id="view-att-mark">
+        <div class="stats-row">
+          <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Present Today</div>
+            <div class="stat-value" id="stat-present" style="color:var(--green)">0</div>
+            <div class="stat-delta">Students marked present</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">❌</div>
+            <div class="stat-label">Absent Today</div>
+            <div class="stat-value" id="stat-absent" style="color:var(--red)">0</div>
+            <div class="stat-delta">Not in class</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">🏖️</div>
+            <div class="stat-label">On Leave</div>
+            <div class="stat-value" id="stat-leave" style="color:var(--amber)">0</div>
+            <div class="stat-delta">Approved leaves</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-label">Late Arrivals</div>
+            <div class="stat-value" id="stat-late" style="color:var(--accent)">0</div>
+            <div class="stat-delta">Arrived after 8:30 AM</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span style="font-size:16px">📋</span>
+            <span class="panel-title">Daily Attendance — Grade 9A</span>
+            <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+              <button class="att-btn present" onclick="markAll('present')">✅ Mark All Present</button>
+              <button class="att-btn absent outline" onclick="markAll('absent')">Mark All Absent</button>
+            </div>
+          </div>
+          <div class="date-strip">
+            <span class="date-label">📅 Date:</span>
+            <span class="date-val" id="today-date"></span>
+            <span class="date-label" style="margin-left:16px">🕗 Class time:</span>
+            <span class="date-val">8:00 AM – 3:30 PM</span>
+            <div style="margin-left:auto">
+              <span class="badge badge-amber">⚠️ 3 Unmarked</span>
+            </div>
+          </div>
+          <div class="att-header">
+            <div class="att-col-hdr">Student</div>
+            <div class="att-col-hdr">Mark Attendance</div>
+          </div>
+          <div class="att-grid" id="att-grid"><!-- JS --></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-att-summary">
+        <div class="stats-row">
+          <div class="stat-card green">
+            <div class="stat-icon">📅</div>
+            <div class="stat-label">Working Days</div>
+            <div class="stat-value" style="color:var(--green)">22</div>
+            <div class="stat-delta">This month (April 2025)</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">📊</div>
+            <div class="stat-label">Avg Attendance</div>
+            <div class="stat-value" style="color:var(--accent)">87%</div>
+            <div class="stat-delta">Class average</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-label">Below 75%</div>
+            <div class="stat-value" style="color:var(--amber)">4</div>
+            <div class="stat-delta">Students need attention</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">🏖️</div>
+            <div class="stat-label">Total Leaves</div>
+            <div class="stat-value" style="color:var(--red)">18</div>
+            <div class="stat-delta">Approved this month</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Monthly Attendance Summary — April 2025</span>
+            <span class="panel-action" onclick="showToast('📥 Exporting attendance…')">Export CSV</span>
+          </div>
+          <div class="month-bars">
+            <div class="bar-row"><span class="bar-name">Arjun Sharma</span><div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--green)"></div></div><span class="bar-pct" style="color:var(--green)">95%</span></div>
+            <div class="bar-row"><span class="bar-name">Priya Menon</span><div class="bar-track"><div class="bar-fill" style="width:91%;background:var(--green)"></div></div><span class="bar-pct" style="color:var(--green)">91%</span></div>
+            <div class="bar-row"><span class="bar-name">Ravi Kumar</span><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--accent)"></div></div><span class="bar-pct" style="color:var(--accent)">82%</span></div>
+            <div class="bar-row"><span class="bar-name">Ananya Pillai</span><div class="bar-track"><div class="bar-fill" style="width:77%;background:var(--amber)"></div></div><span class="bar-pct" style="color:var(--amber)">77%</span></div>
+            <div class="bar-row"><span class="bar-name">Mohammed Asif</span><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--red)"></div></div><span class="bar-pct" style="color:var(--red)">68%</span></div>
+            <div class="bar-row"><span class="bar-name">Divya Nair</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><span class="bar-pct" style="color:var(--green)">100%</span></div>
+            <div class="bar-row"><span class="bar-name">Kiran Babu</span><div class="bar-track"><div class="bar-fill" style="width:59%;background:var(--red)"></div></div><span class="bar-pct" style="color:var(--red)">59%</span></div>
+            <div class="bar-row"><span class="bar-name">Sneha Thomas</span><div class="bar-track"><div class="bar-fill" style="width:86%;background:var(--accent)"></div></div><span class="bar-pct" style="color:var(--accent)">86%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ STAFF ATTENDANCE ══ -->
+      <div class="view" id="view-att-staff">
+        <div class="panel">
+          <div class="panel-header">
+            <span style="font-size:16px">👔</span>
+            <span class="panel-title">Staff Attendance — Today</span>
+            <span style="font-size:12px;color:var(--text2);margin-left:auto">Check-in window: <strong>7:30 AM – 9:00 AM</strong> (Admin editable)</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Staff Member</th><th>Role</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#4f46e5">SR</div>Sunita Reddy</div></td><td>Class Teacher</td><td style="font-family:var(--mono);font-size:12px">8:12 AM</td><td style="font-family:var(--mono);font-size:12px">—</td><td><span class="badge badge-green">✅ Present</span></td><td style="color:var(--text3);font-size:12px">—</td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#0891b2">MK</div>Manu Krishna</div></td><td>Math Teacher</td><td style="font-family:var(--mono);font-size:12px">8:45 AM</td><td style="font-family:var(--mono);font-size:12px">—</td><td><span class="badge badge-amber">⏱️ Late</span></td><td style="color:var(--text3);font-size:12px">Traffic</td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#16a34a">DP</div>Deepa Pillai</div></td><td>Science Teacher</td><td style="font-family:var(--mono);font-size:12px">—</td><td style="font-family:var(--mono);font-size:12px">—</td><td><span class="badge badge-red">❌ Absent</span></td><td style="color:var(--text3);font-size:12px">Sick leave</td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#dc2626">RN</div>Rajesh Nair</div></td><td>PE Teacher</td><td style="font-family:var(--mono);font-size:12px">7:55 AM</td><td style="font-family:var(--mono);font-size:12px">—</td><td><span class="badge badge-green">✅ Present</span></td><td style="color:var(--text3);font-size:12px">—</td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#b45309">PV</div>Parvathy V.</div></td><td>Admin Staff</td><td style="font-family:var(--mono);font-size:12px">8:02 AM</td><td style="font-family:var(--mono);font-size:12px">—</td><td><span class="badge badge-green">✅ Present</span></td><td style="color:var(--text3);font-size:12px">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">🎉 Action completed!</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────
+const colors = ['#4f46e5','#0891b2','#16a34a','#dc2626','#b45309','#7c3aed','#be185d','#0f766e'];
+
+const students = [
+  { name:'Arjun Sharma',    id:'STU001', grade:'Grade 9A', guardian:'Suresh Sharma',   date:'Jun 2023', docs:10, status:'Active'   },
+  { name:'Priya Menon',     id:'STU002', grade:'Grade 9A', guardian:'Latha Menon',     date:'Jun 2023', docs:10, status:'Active'   },
+  { name:'Ravi Kumar',      id:'STU003', grade:'Grade 9B', guardian:'Anand Kumar',     date:'Apr 2024', docs:8,  status:'Active'   },
+  { name:'Ananya Pillai',   id:'STU004', grade:'Grade 10A',guardian:'Geetha Pillai',   date:'Jun 2022', docs:10, status:'Active'   },
+  { name:'Mohammed Asif',   id:'STU005', grade:'Grade 8A', guardian:'Imran Ali',       date:'Jun 2023', docs:7,  status:'Active'   },
+  { name:'Divya Nair',      id:'STU006', grade:'Grade 11A',guardian:'Pradeep Nair',    date:'Jun 2021', docs:10, status:'Active'   },
+  { name:'Kiran Babu',      id:'STU007', grade:'Grade 8B', guardian:'Babu Thomas',     date:'Jan 2025', docs:4,  status:'Active'   },
+  { name:'Sneha Thomas',    id:'STU008', grade:'Grade 10B',guardian:'Joji Thomas',     date:'Jun 2022', docs:9,  status:'Active'   },
+  { name:'Rahul Varma',     id:'STU009', grade:'Grade 9A', guardian:'Krishna Varma',   date:'Jun 2023', docs:10, status:'Active'   },
+  { name:'Kavitha Sree',    id:'STU010', grade:'Grade 11B',guardian:'Ramesh Sree',     date:'Jun 2020', docs:10, status:'Inactive' },
+];
+
+const attStudents = [
+  'Arjun Sharma', 'Priya Menon', 'Ravi Kumar', 'Ananya Pillai',
+  'Mohammed Asif', 'Divya Nair', 'Kiran Babu', 'Sneha Thomas',
+  'Rahul Varma', 'Kavitha Sree', 'Arun Menon', 'Sreya Das'
+];
+
+let attState = {};
+attStudents.forEach(n => attState[n] = null);
+
+// ─── RENDER STUDENTS ─────────────────────────────────────────
+function renderStudents(list) {
+  const tbody = document.getElementById('student-tbody');
+  tbody.innerHTML = list.map((s, i) => {
+    const initials = s.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    const color = colors[i % colors.length];
+    const docsColor = s.docs < 8 ? 'badge-amber' : 'badge-green';
+    const statusBadge = s.status === 'Active' ? 'badge-green' : 'badge-red';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar" style="background:${color}">${initials}</div>
+        <div><div style="font-weight:600">${s.name}</div><div style="font-size:11px;color:var(--text2)">${s.grade}</div></div>
+      </div></td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${s.id}</td>
+      <td>${s.grade}</td>
+      <td style="color:var(--text2)">${s.guardian}</td>
+      <td style="color:var(--text2);font-size:12px">${s.date}</td>
+      <td><span class="badge ${docsColor}">${s.docs}/10 docs</span></td>
+      <td><span class="badge ${statusBadge}">${s.status}</span></td>
+      <td><button class="att-btn late outline" onclick="showToast('📂 Opening ${s.name}\'s profile…')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterStudents(q) {
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.id.toLowerCase().includes(q.toLowerCase()) ||
+    s.grade.toLowerCase().includes(q.toLowerCase())
+  );
+  renderStudents(filtered);
+}
+
+// ─── RENDER ATTENDANCE ───────────────────────────────────────
+function renderAttGrid() {
+  const grid = document.getElementById('att-grid');
+  grid.innerHTML = attStudents.map((name, i) => {
+    const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    const color = colors[i % colors.length];
+    const state = attState[name];
+    return `
+      <div class="att-name-cell">
+        <div class="avatar" style="background:${color}">${initials}</div>
+        <div>
+          <div style="font-weight:600">${name}</div>
+          <div style="font-size:11px;color:var(--text2)">Roll #${String(i+1).padStart(2,'0')}</div>
+        </div>
+        ${state ? `<span class="badge ${state==='present'?'badge-green':state==='absent'?'badge-red':state==='leave'?'badge-amber':'badge-blue'}" style="margin-left:auto">${state.charAt(0).toUpperCase()+state.slice(1)}</span>` : '<span class="badge" style="margin-left:auto;background:var(--surface2);color:var(--text2)">Unmarked</span>'}
+      </div>
+      <div class="att-actions">
+        <button class="att-btn present ${state==='present'?'':'outline'}" onclick="markAtt('${name}','present')">✅ Present</button>
+        <button class="att-btn absent  ${state==='absent'?'':'outline'}"  onclick="markAtt('${name}','absent')">❌ Absent</button>
+        <button class="att-btn leave   ${state==='leave'?'':'outline'}"   onclick="markAtt('${name}','leave')">🏖️ Leave</button>
+        <button class="att-btn late    ${state==='late'?'':'outline'}"    onclick="markAtt('${name}','late')">⏱️ Late</button>
+      </div>`;
+  }).join('');
+  updateStats();
+}
+
+function markAtt(name, status) {
+  attState[name] = status;
+  renderAttGrid();
+}
+
+function markAll(status) {
+  attStudents.forEach(n => attState[n] = status);
+  renderAttGrid();
+  showToast(`✅ All students marked as ${status}!`);
+}
+
+function updateStats() {
+  const vals = Object.values(attState);
+  document.getElementById('stat-present').textContent = vals.filter(v=>v==='present').length;
+  document.getElementById('stat-absent').textContent  = vals.filter(v=>v==='absent').length;
+  document.getElementById('stat-leave').textContent   = vals.filter(v=>v==='leave').length;
+  document.getElementById('stat-late').textContent    = vals.filter(v=>v==='late').length;
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+let currentModule = 'students';
+let currentTab = 'list';
+
+const moduleConfig = {
+  students: {
+    title: 'Students — Admission',
+    sub: 'Manage student profiles & enrollment',
+    tabs: [
+      { id:'list',    label:'Student List' },
+      { id:'add',     label:'Admission Form' },
+      { id:'summary', label:'Reports' },
+    ],
+    exportLabel: 'Export CSV',
+    actionLabel: 'Export CSV',
+  },
+  attendance: {
+    title: 'Attendance',
+    sub: 'Daily & monthly attendance tracking',
+    tabs: [
+      { id:'att-mark',    label:'Mark Attendance' },
+      { id:'att-summary', label:'Monthly Summary' },
+      { id:'att-staff',   label:'Staff Attendance' },
+    ],
+    exportLabel: 'Export CSV',
+  },
+};
+
+function switchModule(mod) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  if (!moduleConfig[mod]) {
+    showToast('🚧 Module coming soon!');
+    return;
+  }
+
+  currentModule = mod;
+  const cfg = moduleConfig[mod];
+
+  document.getElementById('topbar-title').textContent = cfg.title;
+  document.getElementById('topbar-sub').textContent   = cfg.sub;
+
+  // Rebuild module tabs
+  const tabBar = document.getElementById('module-tabs');
+  tabBar.innerHTML = cfg.tabs.map(t => `
+    <div class="module-tab" onclick="switchTab('${t.id}')">
+      <div class="dot"></div> ${t.label}
+    </div>`).join('');
+
+  switchTab(cfg.tabs[0].id);
+}
+
+function switchTab(tabId) {
+  currentTab = tabId;
+
+  // Update top switcher
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  // Update module tab bar
+  document.querySelectorAll('.module-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim().includes(
+      moduleConfig[currentModule]?.tabs.find(x=>x.id===tabId)?.label || '___'
+    ));
+  });
+
+  // Show correct view
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + tabId);
+  if (target) target.classList.add('active');
+}
+
+// ─── THEME ───────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderStudents(students);
+  renderAttGrid();
+
+  const now = new Date();
+  document.getElementById('today-date').textContent = now.toLocaleDateString('en-IN', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric'
+  });
+
+  // Wire initial tab bar
+  document.getElementById('module-tabs').querySelectorAll('.module-tab').forEach((t, i) => {
+    const tabs = ['list','add','summary'];
+    t.onclick = () => switchTab(tabs[i]);
+    if (i === 0) t.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
